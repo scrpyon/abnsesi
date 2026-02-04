@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Html5Qrcode, Html5QrcodeScanType } from "html5-qrcode";
+import { Html5Qrcode } from "html5-qrcode";
 import { toast } from "sonner";
 
 const SCANNER_ID = "qr-reader-scan-area";
@@ -81,7 +81,6 @@ export function ScanArea({
           fps: 10,
           qrbox: { width: qrboxSize, height: qrboxSize },
           aspectRatio: 1.0,
-          supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
         },
         (decodedText) => {
           const now = Date.now();
@@ -124,7 +123,6 @@ export function ScanArea({
           fps: 10,
           qrbox: { width: qrboxSize, height: qrboxSize },
           aspectRatio: 1.0,
-          supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
         },
         (decodedText) => {
           const now = Date.now();
