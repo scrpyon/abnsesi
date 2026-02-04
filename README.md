@@ -44,7 +44,7 @@ Login admin: gunakan `SEED_ADMIN_EMAIL` dan `SEED_ADMIN_PASSWORD` dari `.env`.
 
 - `prisma/schema.prisma`: schema database (`siswa`, `absensi`, `jenis_absensi`, `users`, `konfigurasi`)
 - `src/auth.ts`: konfigurasi NextAuth (Credentials + Prisma adapter)
-- `src/middleware.ts`: proteksi RBAC untuk semua route `/admin/*`
+- `src/proxy.ts`: proteksi RBAC untuk semua route `/admin/*` (menggantikan middleware.ts di Next.js terbaru)
 - `src/app/admin/*`: area admin (Server Components)
 - `src/app/api/absensi/scan/route.ts`: endpoint pencatatan absensi via barcode
 - `src/lib/validation/*`: Zod schemas untuk validasi input
