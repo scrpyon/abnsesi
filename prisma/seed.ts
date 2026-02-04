@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-import { JenisKelamin } from "@prisma/client";
 import { prisma } from "../src/lib/prisma";
 
 async function seedJenisAbsensi() {
@@ -42,8 +41,8 @@ async function seedDummySiswa() {
     const nis = `202600${nomor.toString().padStart(3, "0")}`;
 
     // Selang-seling jenis kelamin.
-    const jenisKelamin =
-      nomor % 2 === 0 ? JenisKelamin.LAKI_LAKI : JenisKelamin.PEREMPUAN;
+    const jenisKelamin: "LAKI_LAKI" | "PEREMPUAN" =
+      nomor % 2 === 0 ? "LAKI_LAKI" : "PEREMPUAN";
 
     return {
       nis,
