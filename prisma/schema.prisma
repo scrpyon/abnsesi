@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum StatusAbsensi {
+  HADIR
+  TERLAMBAT
+  IZIN
+  ALPA
+}
+
+enum JenisKelamin {
+  LAKI_LAKI
+  PEREMPUAN
+}
+
+// === NextAuth.js (v5) models ===
+// We map table names to match requested schema naming.
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(USER)
+
+  // For Credentials provider (email + password).
+  // Nullable to allow OAuth-only accounts later.
+  passwordHash String? @db.VarChar(255)
+
+  accounts  Account[]
+  sessions  Session[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// === Domain models ===
+model Siswa {
+  id      Int    @id @default(autoincrement())
+  nis     String @unique @db.VarChar(32)
+  nama    String @db.VarChar(191)
+  kelas   String? @db.VarChar(64)
+  fotoUrl String? @db.VarChar(512)
+  jenisKelamin JenisKelamin @default(LAKI_LAKI)
+
+  // Nilai barcode yang akan discan (disarankan = NIS, tetap disimpan terpisah untuk fleksibilitas).
+  barcode String @unique @db.VarChar(64)
+
+  isAktif Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  absensi Absensi[]
+
+  @@map("siswa")
+}
+
+model JenisAbsensi {
+  id        Int    @id @default(autoincrement())
+  kode      String @unique @db.VarChar(32) // contoh: NGAJI, SHOLAT
+  nama      String @db.VarChar(64)
+  deskripsi String? @db.Text
+  isAktif   Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  absensi Absensi[]
+
+  @@map("jenis_absensi")
+}
+
+model Absensi {
+  id             Int @id @default(autoincrement())
+  siswaId        Int
+  jenisAbsensiId Int
+
+  // Tanggal absensi (tanpa jam) untuk kebutuhan laporan dan constraint unik harian.
+  tanggal DateTime @db.Date
+
+  // Waktu scan/kejadian (timestamp).
+  waktu  DateTime @default(now())
+  status StatusAbsensi @default(HADIR)
+  catatan String? @db.VarChar(255)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  siswa       Siswa       @relation(fields: [siswaId], references: [id], onDelete: Restrict)
+  jenisAbsensi JenisAbsensi @relation(fields: [jenisAbsensiId], references: [id], onDelete: Restrict)
+
+  @@unique([siswaId, jenisAbsensiId, tanggal])
+  @@index([tanggal])
+  @@index([siswaId])
+  @@index([jenisAbsensiId])
+  @@map("absensi")
+}
+
+model Konfigurasi {
+  id        Int    @id @default(autoincrement())
+  kunci     String @unique @db.VarChar(64)
+  nilai     String @db.Text
+  deskripsi String? @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("konfigurasi")
+}
