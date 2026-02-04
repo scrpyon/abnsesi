@@ -19,7 +19,13 @@ const initialState: CreateSiswaState = { ok: false, message: "" };
 
 export function SiswaCreateForm() {
   const [state, formAction, isPending] = useActionState(createSiswaAction, initialState);
-  const [jenisKelamin, setJenisKelamin] = React.useState("LAKI_LAKI");
+  const [jenisKelamin, setJenisKelamin] = React.useState<"LAKI_LAKI" | "PEREMPUAN">("LAKI_LAKI");
+
+  const handleJenisKelaminChange = React.useCallback((value: string) => {
+    if (value === "LAKI_LAKI" || value === "PEREMPUAN") {
+      setJenisKelamin(value);
+    }
+  }, []);
 
   return (
     <form action={formAction} className="grid gap-4">
@@ -54,7 +60,7 @@ export function SiswaCreateForm() {
 
       <div className="grid gap-2">
         <Label htmlFor="jenisKelamin">Jenis Kelamin</Label>
-        <Select value={jenisKelamin} onValueChange={setJenisKelamin} required>
+        <Select value={jenisKelamin} onValueChange={handleJenisKelaminChange} required>
           <SelectTrigger id="jenisKelamin">
             <SelectValue placeholder="Pilih jenis kelamin" />
           </SelectTrigger>
